@@ -3,6 +3,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "fumadocs-mdx/vite";
+import netlify from "@netlify/vite-plugin-tanstack-start";
 
 export default defineConfig({
   server: {
@@ -17,6 +18,7 @@ export default defineConfig({
       },
     }),
     react(),
+    netlify(),
   ],
   resolve: {
     tsconfigPaths: true,
