@@ -58,5 +58,5 @@ jobs:
             echo "No changes"
             exit 0
           fi
-          git commit -m "sync: ${{ github.event.client_payload.repo }}@${{ github.event.client_payload.ref }}"
+          git commit -m "sync: ${{ github.event.client_payload.repo }}@$(echo ${{ github.event.client_payload.ref }} | cut -c1-7)"
           git push
