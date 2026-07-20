@@ -1,0 +1,62 @@
+name: Sync Docs from trek-cli
+
+on:
+  repository_dispatch:
+    types: [sync-docs]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ROBO_TREK_APP_ID }}
+          private-key: ${{ secrets.ROBO_TREK_PRIVATE_KEY }}
+          owner: merzen-sh
+          repositories: trek-docs
+
+      - uses: actions/checkout@v4
+        with:
+          path: trek-docs
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Validate payload
+        if: ${{ !github.event.client_payload.repo || !github.event.client_payload.ref }}
+        run: |
+          echo "Missing required payload fields (repo, ref)"
+          exit 1
+
+      - name: Checkout ${{ github.event.client_payload.repo }}
+        uses: actions/checkout@v4
+        with:
+          repository: merzen-sh/${{ github.event.client_payload.repo }}
+          path: ${{ github.event.client_payload.repo }}
+          ref: ${{ github.event.client_payload.ref }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Copy docs
+        if: github.event.client_payload.repo == 'trek-cli'
+        run: |
+          rm -rf trek-docs/content/cli
+          cp -r trek-cli/docs trek-docs/content/cli
+
+      # special handling for other repos, e.g. trek-core, trek-ui etc.
+      - name: Copy docs (other repos)
+        if: github.event.client_payload.repo != 'trek-cli'
+        run: |
+          rm -rf trek-docs/content/scripts/${{ github.event.client_payload.repo }}
+          cp -r ${{ github.event.client_payload.repo }}/docs trek-docs/content/scripts/${{ github.event.client_payload.repo }}
+
+      - name: Commit and push
+        run: |
+          cd trek-docs
+          git config user.name "robo-trek-x"
+          git config user.email "robo-trek-x[bot]@users.noreply.github.com"
+          git add content/
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "sync: ${{ github.event.client_payload.repo }}@${{ github.event.client_payload.ref }}"
+          git push
