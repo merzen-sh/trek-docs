@@ -1,3 +1,6 @@
 {
+  "title": "Trek Core",
+  "icon": "Terminal",
+  "root": true,
   "pages": ["index"]
 }
