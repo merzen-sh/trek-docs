@@ -33,7 +33,7 @@ jobs:
           repository: merzen-sh/${{ github.event.client_payload.repo }}
           path: ${{ github.event.client_payload.repo }}
           ref: ${{ github.event.client_payload.ref }}
-          token: ${{ steps.app-token.outputs.token }}
+          token: ${{ secrets.PAT }}
 
       - name: Copy docs
         if: github.event.client_payload.repo == 'trek-cli'
