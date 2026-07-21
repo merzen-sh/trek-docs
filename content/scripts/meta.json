@@ -2,5 +2,8 @@
   "title": "Trek Script",
   "icon": "ScrollText",
   "root": true,
-  "pages": ["index", "trek-core", "trek-ui"]
+  "pages": [
+    "index",
+    "trek-core"
+  ]
 }
